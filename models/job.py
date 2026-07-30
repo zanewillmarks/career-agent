@@ -28,3 +28,7 @@ class Job:
     tags: List[str] = field(default_factory=list)
 
     score: float = 0.0
+    reason: str = ""
+    training_score: int = 0
+    career_score: int = 0
+    ai_summary: str = ""

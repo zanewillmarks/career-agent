@@ -1,22 +1,46 @@
+import requests
+
 from models.job import Job
+from sources.base import JobSource
 
 
-def search_remoteok():
-    """
-    Temporary placeholder.
-    Later this will scrape RemoteOK.
-    """
+class RemoteOKSource(JobSource):
 
-    jobs = [
-        Job(
-            title="Python AI Intern",
-            company="Remote Company",
-            source="RemoteOK",
-            url="https://remoteok.com",
-            remote=True,
-            internship=True,
-            training=True,
-        )
-    ]
+    def search(self):
 
-    return jobs
+        print("Connecting to RemoteOK...")
+
+        jobs = []
+
+        try:
+            response = requests.get(
+                "https://remoteok.com/api",
+                headers={
+                    "User-Agent": "Career-Agent"
+                },
+                timeout=15
+            )
+
+            response.raise_for_status()
+
+            data = response.json()
+
+            # The first item contains metadata, so skip it
+            for item in data[1:]:
+
+                jobs.append(
+                    Job(
+                        title=item.get("position", "Unknown"),
+                        company=item.get("company", "Unknown"),
+                        source="RemoteOK",
+                        url=item.get("url", ""),
+                        remote=True,
+                        description=item.get("description", ""),
+                        tags=item.get("tags", [])
+                    )
+                )
+
+        except Exception as e:
+            print(f"RemoteOK error: {e}")
+
+        return jobs
